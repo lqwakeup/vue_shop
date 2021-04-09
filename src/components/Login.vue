@@ -32,8 +32,8 @@ export default {
   data(){
    return {
       loginForm:{
-          username:'',
-          password:''
+          username:'admin',
+          password:'123456'
       },
     //   表单的验证
       rules:{
@@ -60,10 +60,15 @@ export default {
               if(!valid) return;
               const result = this.$http.post('login',this.loginForm);
               result.then(res=>{
+                  
                 //   对data数据进行解构赋值
                   const {data} = res;
-                  if(data.meta.status !==200) return console.log('登录失败');
-                  console.log('登录成功');
+                  console.log(data)
+                  if(data.meta.status !==200) return this.$message.error('登录失败');
+                  this.$message.success('登录成功');
+                  window.sessionStorage.setItem('token',data.data.token);
+                  this.$router.push('/home')
+
               })
           })
       }
