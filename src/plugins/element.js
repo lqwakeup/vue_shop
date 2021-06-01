@@ -4,7 +4,9 @@ import {Message} from 'element-ui'
 
 import {Form,FormItem,Input,Container,Header,Aside,Main
         ,Menu,Submenu,MenuItemGroup,MenuItem,
-        Breadcrumb,BreadcrumbItem,Card,Row,Col,Table,TableColumn} from 'element-ui'
+        Breadcrumb,BreadcrumbItem,Card,Row,Col,
+        Table,TableColumn,Switch,Tooltip,Pagination,
+        Dialog} from 'element-ui'
 
 // element-ui是按需导入
 Vue.use(Button)
@@ -26,6 +28,10 @@ Vue.use(Row)
 Vue.use(Col)
 Vue.use(Table)
 Vue.use(TableColumn)
+Vue.use(Switch)
+Vue.use(Tooltip)
+Vue.use(Pagination)
+Vue.use(Dialog)
 
 // 全局挂载message
 Vue.prototype.$message = Message;

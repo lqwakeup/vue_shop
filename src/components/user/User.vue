@@ -12,12 +12,13 @@
               <!-- 搜索与添加 -->
               <el-row :gutter="20">
                 <el-col :span="8">
-                  <el-input placeholder="请输入内容">
-                    <el-button slot="append" icon="el-icon-search"></el-button>
+                  <el-input placeholder="请输入内容"
+                    v-model="queryInfo.query" clearable @clear="getUserList">  
+                    <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
                   </el-input>
                 </el-col>
                 <el-col :span="4">
-                  <el-button type="primary">添加用户</el-button>
+                  <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
                 </el-col>
               </el-row>
               <!-- 用户列表区域 -->
@@ -27,10 +28,46 @@
                 <el-table-column label="邮箱" prop="email"></el-table-column>
                 <el-table-column label="电话" prop="mobile"></el-table-column>
                 <el-table-column label="角色" prop="role_name"></el-table-column>
-                <el-table-column label="状态" prop="mg_state"></el-table-column>
-                <el-table-column label="操作"></el-table-column>
+                <el-table-column label="状态">
+                  <template slot-scope="scope">
+                    <el-switch v-model="scope.row.mg_state" @change="userStateChange(scope.row)"></el-switch>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作">
+                  <template slot-scope="">
+                    <el-button type="primary" icon="el-icon-edit" size="small"></el-button>
+                    <el-button type="danger" icon="el-icon-delete" size="small"></el-button>
+                    <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
+                       <el-button type="warning" icon="el-icon-setting" size="small"></el-button>
+                    </el-tooltip>
+                  </template>
+                </el-table-column>
               </el-table>
+
+              <!-- 分页区域 -->
+               <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="queryInfo.pagenum"
+                :page-sizes="[1, 2, 5, 10]"
+                :page-size="queryInfo.pagesize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total">
+              </el-pagination>
         </el-card>
+
+        <!-- 添加用户的对话框 -->
+        <el-dialog
+          title="提示"
+          :visible.sync="addDialogVisible"
+          width="50%"
+          :before-close="handleClose">
+          <span>这是一段信息</span>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="addDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+          </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -46,7 +83,8 @@ export default {
       pagesize:2
     },
     userList:[],
-    total:0
+    total:0,
+    addDialogVisible: false
    }
   },
   created() {
@@ -59,8 +97,34 @@ export default {
       console.log(res)
       this.userList = res.data.users;
       this.total = res.data.total;
+    },
 
+    handleSizeChange(newSize) {
+      this.queryInfo.pagesize = newSize;
+      this.getUserList()
+    },
+
+    // 监听页码值改变的事件
+    handleCurrentChange(newPage) {
+      console.log(newPage)
+      this.queryInfo.pagenum = newPage;
+      this.getUserList()
+    },
+
+    // 监听switch开关状态的改变
+    async userStateChange(userInfo) {
+      console.log(userInfo)
+      const { data : res} = await this.$http.put(`users/${userInfo.id}/state/${userInfo.mg_state}`);
+      // console.log(res)
+      if(res.meta.status !== 200) {
+        userInfo.mg_state = !userInfo.mg_state;
+        return this.$message.error('更新用户状态失败');
+      }
+
+      this.$message.success('更新用户状态成功')
     }
+
+
   }
 }
 </script>
